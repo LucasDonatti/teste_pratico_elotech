@@ -19,6 +19,8 @@ public class BaseCrudService <ENTITY extends BaseEntity, REPOSITORY extends JpaR
 	}
 	
 	public String criar(ENTITY nova) {
+		if (repo.existsById(nova.getId()))
+			throw new RuntimeException("Registro já existente.");
 		return repo.save(nova).getId();
 	}
 	
