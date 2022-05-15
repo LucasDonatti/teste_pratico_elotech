@@ -2,6 +2,8 @@ package br.lucas.teste_pratico_elotech.pessoa;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.Test;
 
 class TestesPessoa {
@@ -33,7 +35,17 @@ class TestesPessoa {
 		Pessoa p = new Pessoa();
 		p.setCpf("05566755925");
 		
-		assertEquals(true, p.validarCpf(p.getCpf()));
+		assertEquals(true, p.isCpf(p.getCpf()));
+		
+	}
+	
+	@Test
+	void teste_data_nascimento() {
+		
+		Pessoa p = new Pessoa();
+		p.setDataNascimento(LocalDate.parse("2002-08-31"));
+		
+		assertEquals(false, p.isDataNascimentoMaiorQueHoje(p.getDataNascimento()));
 		
 	}
 

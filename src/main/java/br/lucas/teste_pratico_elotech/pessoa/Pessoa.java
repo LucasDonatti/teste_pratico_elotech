@@ -1,6 +1,6 @@
 package br.lucas.teste_pratico_elotech.pessoa;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -22,7 +22,7 @@ public class Pessoa extends BaseEntity {
 	private String cpf;
 	
 	@Column(nullable = false)
-	private Date dataNascimento;
+	private LocalDate dataNascimento;
 	
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "pessoa_id")
@@ -30,7 +30,7 @@ public class Pessoa extends BaseEntity {
 	
 	public Pessoa() {}
 	
-	public Pessoa(String nome, String cpf, Date dataNascimento, List<Contato> contatos) {
+	public Pessoa(String nome, String cpf, LocalDate dataNascimento, List<Contato> contatos) {
 		setNome(nome);
 		setCpf(cpf);
 		setDataNascimento(dataNascimento);
@@ -45,7 +45,7 @@ public class Pessoa extends BaseEntity {
 		return cpf;
 	}
 	
-	public Date getDataNascimento() {
+	public LocalDate getDataNascimento() {
 		return dataNascimento;
 	}
 	
@@ -58,12 +58,14 @@ public class Pessoa extends BaseEntity {
 	}
 	
 	public void setCpf(String cpf) {
-		if (validarCpf(cpf) == false)
+		if (isCpf(cpf) == false)
 			throw new RuntimeException("CPF inválido. Informe um CPF existente.");
 		this.cpf = cpf;
 	}
 	
-	public void setDataNascimento(Date dataNascimento) {
+	public void setDataNascimento(LocalDate dataNascimento) {
+		if (isDataNascimentoMaiorQueHoje(dataNascimento))
+			throw new RuntimeException("Data de nascimento inválida.");
 		this.dataNascimento = dataNascimento;
 	}
 	
@@ -71,7 +73,7 @@ public class Pessoa extends BaseEntity {
 		this.contatos = contatos;
 	}
 	
-	Boolean verificarSequenciaCpf (String cpf) {
+	Boolean isSequenciaCpfValida(String cpf) {
 		if (cpf.equals("00000000000") || cpf.equals("11111111111") ||
 			cpf.equals("22222222222") || cpf.equals("33333333333") ||
 			cpf.equals("44444444444") || cpf.equals("55555555555") ||
@@ -89,16 +91,21 @@ public class Pessoa extends BaseEntity {
 		return resto < 2 ? 0 : 11-resto;
 	}
 
-	public Boolean validarCpf(String cpf) {
+	public Boolean isCpf(String cpf) {
 		if (cpf.length() != 11) 
 			return false;
-		if (verificarSequenciaCpf(cpf) == false)
+		if (!isSequenciaCpfValida(cpf))
 			return false;
 		Integer[] pesoDigito1 = {10, 9, 8, 7, 6, 5, 4, 3, 2};
 		Integer[] pesoDigito2 = {11, 10, 9, 8, 7, 6, 5, 4, 3, 2};
 		Integer digito1 = calcularDigito(cpf.substring(0,9), pesoDigito1);
 		Integer digito2 = calcularDigito(cpf.substring(0,9) + digito1, pesoDigito2);
 		return cpf.equals(cpf.substring(0,9) + digito1.toString() + digito2.toString());
+	}
+
+	Boolean isDataNascimentoMaiorQueHoje(LocalDate dataNascimento) {
+		LocalDate hoje = LocalDate.now();
+		return dataNascimento.compareTo(hoje) >= 0;
 	}
 	
 }
